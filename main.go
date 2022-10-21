@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/nicklaw5/helix"
@@ -53,11 +54,24 @@ func getLastNonEmptyPart(parts []string) string {
 	return ""
 }
 
-func onlineHandler(w http.ResponseWriter, r *http.Request) {
+func isSafe(name string) bool {
+	matched, err := regexp.Match("^[a-zA-Z0-9-_.]+$", []byte(name))
+	if err != nil {
+		log.Println(err)
+		return false
+	}
 
+	return matched
+}
+
+func onlineHandler(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.URL.Path, "/")
 	user := getLastNonEmptyPart(parts)
 	log.Printf("Got username %v from %v", user, r.URL.Path)
+
+	if !isSafe(user) {
+		log.Fatalf("Username %v seemed unsafe, so bailing out", user)
+	}
 
 	if len(user) > 0 {
 		online, err := isUserOnline(user)
