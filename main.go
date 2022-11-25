@@ -79,6 +79,7 @@ func onlineHandler(w http.ResponseWriter, r *http.Request) {
 			log.Fatal(err)
 		}
 		w.Header().Add("Content-Type", "image/svg+xml")
+		w.Header().Add("Cache-Control", "no-cache")
 		if online {
 			http.ServeFile(w, r, "online.svg")
 		} else {
